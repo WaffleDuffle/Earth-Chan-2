@@ -25,8 +25,15 @@ async def apod(interaction: discord.Interaction):
     response = requests.get(URL)
     result = response.json()
 
-    msg = f'On **{result["date"]}** NASA uploaded **{result["title"]}** in **Astronomy Picture of the Day**\n{result["hdurl"]}\n{result["explanation"]}'
+    msg = f'On **{result['date']}** NASA uploaded **{result['title']}** in **Astronomy Picture of the Day**\n{result['hdurl']}\n{result['explanation']}'
     await interaction.response.send_message(msg)
+
+    image_url = result['url']
+    image_response = requests.get(image_url)
+    with open (str(result['date']) + '.jpg', 'wb') as file:
+        file.write(image_response.content)
+    print('Successfull download')
+
 
 if __name__ == '__main__':
     bot.run(os.getenv('TOKEN'))
