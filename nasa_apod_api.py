@@ -37,7 +37,7 @@ async def apod(interaction: discord.Interaction):
     image_url = result['hdurl']
     image_response = requests.get(image_url)
     
-    with open (str(result['date']) + '.jpg', 'wb') as file:
+    with open (f'Photos\\{str(result['date'])}.jpg', 'wb') as file:
         file.write(image_response.content)
     print('Successfull download')
 
