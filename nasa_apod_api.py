@@ -4,6 +4,7 @@ from discord.ext import commands
 import os
 import random
 from dotenv import load_dotenv
+from sys import platform
 import asyncio
 
 load_dotenv()
@@ -22,7 +23,11 @@ async def image_download(result, token, rpath, name):
         async with session.get(image_url) as image_response:
             if image_response.status == 200:
                 image_data = await image_response.read()
-                with open(f'{rpath}\\{name}.jpg', 'wb') as file:
+                if platform == 'linux':
+                    slash = '/'
+                elif platform == 'win64' or platform == 'win32':
+                    slash = '\\'
+                with open(f'{rpath}{slash}{name}.jpg', 'wb') as file:
                     file.write(image_data)
                 print('Successful download')
             else:
