@@ -40,15 +40,17 @@ async def on_ready():
 
 @bot.tree.command(name='apod', description="Get NASA's Astronomy Picture of the Day")
 async def apod(interaction: discord.Interaction):
+    await interaction.response.defer()
     async with aiohttp.ClientSession() as session:
         async with session.get(APOD_URL) as response:
             if response.status == 200:
                 print('Access granted\n')
                 result = await response.json()
-                print(result)
                 msg = f"On **{result['date']}** NASA uploaded **{result['title']}** in **Astronomy Picture of the Day**\n{result['hdurl']}\n{result['explanation']}"
-                await interaction.response.send_message(msg)
-                await image_download(result, 'hdurl', 'Apod_photos', str(result['date']))
+                print(msg)
+                await asyncio.sleep(2)
+                await interaction.followup.send(msg)
+                ##await image_download(result, 'hdurl', 'Apod_photos', str(result['date']))
             else:
                 print(f'Failed to access API, HTTP Status Code = {response.status}')
 
@@ -61,8 +63,8 @@ async def mars(interaction: discord.Interaction):
             if response.status == 200:
                 print('Access granted\n')
                 result = await response.json()
-                random_element = random.choice(result["photos"])
-                msg = f'Camera: {random_element["camera"]["full_name"]}\nSolar day: {random_element["sol"]}\n{random_element["img_src"]}'
+                random_element = random.choice(result['photos'])
+                msg = f"Camera: {random_element['camera']['full_name']}\nSolar day: {random_element['sol']}\n{random_element['img_src']}"
                 print(msg)
                 await asyncio.sleep(2)
                 await interaction.followup.send(msg)
