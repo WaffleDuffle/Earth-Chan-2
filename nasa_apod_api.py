@@ -23,22 +23,21 @@ intents.message_content = True
 bot = commands.Bot(command_prefix='/', intents=intents)
 
 async def image_download(result, token, rpath, name):
-    image_url = result[token]   
-    
+    image_url = result[token]      
     image_file = f'{rpath}{SLASH}{name}.jpg'
     print(image_file)
-    async with aiohttp.ClientSession() as session:
-        async with session.get(image_url) as image_response:
-            if image_response.status == 200:
-                if os.path.exists(image_file) == 0:
+    if os.path.exists(image_file) == 0:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(image_url) as image_response:
+                if image_response.status == 200:
                     image_data = await image_response.read()                   
                     with open(image_file, 'wb') as file:
                         file.write(image_data)
                     print('Successful download')
                 else:
-                    print('Image is already downloaded')                
-            else:
-                print(f'Failed to download image, HTTP Status Code = {image_response.status}')
+                    print(f'Failed to download image, HTTP Status Code = {image_response.status}')
+    else:
+        print('Image is already downloaded')
 
 @bot.event
 async def on_ready():
