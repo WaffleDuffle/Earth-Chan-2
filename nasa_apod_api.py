@@ -12,24 +12,31 @@ load_dotenv()
 API_KEY = os.getenv('API_KEY')
 APOD_URL = f'https://api.nasa.gov/planetary/apod?api_key={API_KEY}' 
 
+if platform == 'linux':
+        SLASH = '/'
+elif platform == 'win64' or platform == 'win32':
+        SLASH = '\\'
+
 intents = discord.Intents.default()
 intents.message_content = True
 
 bot = commands.Bot(command_prefix='/', intents=intents)
 
 async def image_download(result, token, rpath, name):
-    image_url = result[token]
+    image_url = result[token]   
+    
+    image_file = f'{rpath}{SLASH}{name}.jpg'
+    print(image_file)
     async with aiohttp.ClientSession() as session:
         async with session.get(image_url) as image_response:
             if image_response.status == 200:
-                image_data = await image_response.read()
-                if platform == 'linux':
-                    slash = '/'
-                elif platform == 'win64' or platform == 'win32':
-                    slash = '\\'
-                with open(f'{rpath}{slash}{name}.jpg', 'wb') as file:
-                    file.write(image_data)
-                print('Successful download')
+                if os.path.exists(image_file) == 0:
+                    image_data = await image_response.read()                   
+                    with open(image_file, 'wb') as file:
+                        file.write(image_data)
+                    print('Successful download')
+                else:
+                    print('Image is already downloaded')                
             else:
                 print(f'Failed to download image, HTTP Status Code = {image_response.status}')
 
@@ -50,7 +57,7 @@ async def apod(interaction: discord.Interaction):
                 print(msg)
                 await asyncio.sleep(2)
                 await interaction.followup.send(msg)
-                ##await image_download(result, 'hdurl', 'Apod_photos', str(result['date']))
+                await image_download(result, 'hdurl', 'Apod_photos', str(result['date']))
             else:
                 print(f'Failed to access API, HTTP Status Code = {response.status}')
 
